@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header>
+    <h1>Hammer-Time</h1>
+    <nav>
+        <a th:href="@{/}">Главная</a>
+
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Выход</button>
+        </form>
+    </nav>
+</header>
+
+<main>
+    <h2>Профиль пользователя</h2>
+
+    <div class="card">
+        <p><b>Имя:</b> <span th:text="${user.firstName}"></span></p>
+        <p><b>Фамилия:</b> <span th:text="${user.lastName}"></span></p>
+        <p><b>Email:</b> <span th:text="${user.email}"></span></p>
+        <p><b>Роль:</b> <span th:text="${user.role}"></span></p>
+        <p><b>Баланс кредитов:</b> <span th:text="${user.balance}"></span></p>
+    </div>
+</main>
+
+</body>
+</html>
