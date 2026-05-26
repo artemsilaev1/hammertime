@@ -2,6 +2,7 @@ package com.example.hammertime.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,8 +22,12 @@ public class SecurityConfig {
                                 "/activate/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/uploads/**"
                         ).permitAll()
+                        .requestMatchers("/lots/create").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/lots/*/comments").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/lots", "/lots/*").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
