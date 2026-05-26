@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${lot.title}">Лот</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header>
+    <h1>Hammer-Time</h1>
+
+    <nav>
+        <a th:href="@{/}">Главная</a>
+        <a th:href="@{/lots}">Лоты</a>
+        <a th:href="@{/lots/create}">Создать лот</a>
+        <a th:href="@{/profile}">Профиль</a>
+        <a th:href="@{/login}">Вход</a>
+    </nav>
+</header>
+
+<main>
+    <h2 th:text="${lot.title}"></h2>
+
+    <div class="gallery" th:if="${!#lists.isEmpty(lot.images)}">
+        <img th:each="image : ${lot.images}"
+             th:src="@{'/uploads/' + ${image}}"
+             alt="Фото лота">
+    </div>
+
+    <div class="card">
+        <p>
+            <b>Описание:</b>
+            <span th:text="${lot.description}"></span>
+        </p>
+
+        <p>
+            <b>Начальная цена:</b>
+            <span th:text="${lot.startPrice}"></span>
+        </p>
+
+        <p>
+            <b>Текущая цена:</b>
+            <span th:text="${lot.currentPrice}"></span>
+        </p>
+
+        <p>
+            <b>Минимальная ставка:</b>
+            <span th:text="${lot.minBid}"></span>
+        </p>
+
+        <p>
+            <b>Статус:</b>
+            <span th:text="${lot.status}"></span>
+        </p>
+
+        <p>
+            <b>Продавец:</b>
+            <span th:text="${lot.ownerName}"></span>
+        </p>
+
+        <p>
+            <b>Начало торгов:</b>
+            <span th:text="${#temporals.format(lot.startTime, 'dd.MM.yyyy HH:mm')}"></span>
+        </p>
+
+        <p>
+            <b>Окончание торгов:</b>
+            <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
+        </p>
+    </div>
+
+    <section class="comments">
+        <h3>Комментарии</h3>
+
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <form th:action="@{/lots/{id}/comments(id=${lot.id})}"
+              th:object="${commentForm}"
+              method="post">
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+            <label>Ваш комментарий:</label>
+            <textarea th:field="*{text}" rows="4" placeholder="Напишите комментарий к лоту"></textarea>
+            <p class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></p>
+
+            <button type="submit">Добавить комментарий</button>
+        </form>
+
+        <p class="hint">
+            Чтобы оставить комментарий, нужно войти в аккаунт.
+        </p>
+
+        <div th:if="${#lists.isEmpty(comments)}">
+            <p>Комментариев пока нет.</p>
+        </div>
+
+        <div class="comment-card" th:each="comment : ${comments}">
+            <p>
+                <b th:text="${comment.userName}"></b>
+                <span th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
+            </p>
+
+            <p th:text="${comment.text}"></p>
+        </div>
+    </section>
+
+    <p>
+        <a th:href="@{/lots}">Вернуться к списку лотов</a>
+    </p>
+</main>
+
+</body>
+</html>

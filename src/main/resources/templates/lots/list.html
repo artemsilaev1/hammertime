@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Лоты</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<header>
+    <h1>Hammer-Time</h1>
+
+    <nav>
+        <a th:href="@{/}">Главная</a>
+        <a th:href="@{/lots}">Лоты</a>
+        <a th:href="@{/lots/create}">Создать лот</a>
+        <a th:href="@{/profile}">Профиль</a>
+        <a th:href="@{/login}">Вход</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Список лотов</h2>
+
+    <form th:action="@{/lots}" method="get" class="search-form">
+        <label>Поиск по названию или описанию:</label>
+        <input type="text" name="q" th:value="${q}" placeholder="Например: ноутбук">
+
+        <label>Дата начала торгов:</label>
+        <input type="date" name="date" th:value="${date}">
+
+        <button type="submit">Найти</button>
+        <a th:href="@{/lots}">Сбросить</a>
+    </form>
+
+    <hr>
+
+    <p th:if="${#lists.isEmpty(lots)}">
+        Лоты не найдены.
+    </p>
+
+    <div class="lot-card" th:each="lot : ${lots}">
+        <div th:if="${!#lists.isEmpty(lot.images)}">
+            <img class="lot-preview"
+                 th:src="@{'/uploads/' + ${lot.images[0]}}"
+                 alt="Фото лота">
+        </div>
+
+        <h3>
+            <a th:href="@{/lots/{id}(id=${lot.id})}" th:text="${lot.title}"></a>
+        </h3>
+
+        <p th:text="${lot.description}"></p>
+
+        <p>
+            <b>Текущая цена:</b>
+            <span th:text="${lot.currentPrice}"></span>
+        </p>
+
+        <p>
+            <b>Статус:</b>
+            <span th:text="${lot.status}"></span>
+        </p>
+
+        <p>
+            <b>Продавец:</b>
+            <span th:text="${lot.ownerName}"></span>
+        </p>
+
+        <p>
+            <b>Начало:</b>
+            <span th:text="${#temporals.format(lot.startTime, 'dd.MM.yyyy HH:mm')}"></span>
+        </p>
+
+        <p>
+            <b>Окончание:</b>
+            <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
+        </p>
+    </div>
+</main>
+
+</body>
+</html>
