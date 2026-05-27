@@ -13,6 +13,9 @@ public class EmailService {
     @Value("${app.url}")
     private String appUrl;
 
+    @Value("${spring.mail.username:}")
+    private String mailFrom;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -22,30 +25,49 @@ public class EmailService {
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom(mailFrom);
         message.setSubject("Подтверждение регистрации Hammer-Time");
-        message.setText("Здравствуйте!\n\nДля подтверждения регистрации перейдите по ссылке:\n" + link);
+        message.setText("""
+                Здравствуйте!
+
+                Вы зарегистрировались на сайте Hammer-Time.
+
+                Для подтверждения регистрации перейдите по ссылке:
+                %s
+
+                Если вы не регистрировались на сайте, просто проигнорируйте это письмо.
+                """.formatted(link));
 
         try {
             mailSender.send(message);
+            System.out.println("Письмо подтверждения отправлено на почту: " + to);
         } catch (Exception e) {
-            System.out.println("Почтовый сервер пока не настроен.");
+            System.out.println("Почтовый сервер пока не настроен или письмо не отправилось.");
             System.out.println("Ссылка для активации аккаунта:");
             System.out.println(link);
+            System.out.println("Ошибка отправки email:");
+            System.out.println(e.getMessage());
         }
     }
 
     public void sendSimpleEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
+        message.setFrom(mailFrom);
         message.setSubject(subject);
         message.setText(text);
 
         try {
             mailSender.send(message);
+            System.out.println("Письмо отправлено на почту: " + to);
         } catch (Exception e) {
-            System.out.println("Письмо не отправлено. Получатель: " + to);
+            System.out.println("Письмо не отправилось.");
+            System.out.println("Получатель: " + to);
             System.out.println("Тема: " + subject);
+            System.out.println("Текст письма:");
             System.out.println(text);
+            System.out.println("Ошибка отправки email:");
+            System.out.println(e.getMessage());
         }
     }
 }
