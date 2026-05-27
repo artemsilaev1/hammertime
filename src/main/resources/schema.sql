@@ -52,3 +52,34 @@ CREATE TABLE IF NOT EXISTS comments (
     CONSTRAINT fk_comments_user
     FOREIGN KEY (user_id) REFERENCES users(id)
     );
+
+CREATE TABLE IF NOT EXISTS bids (
+                                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                    lot_id BIGINT NOT NULL,
+                                    user_id BIGINT NOT NULL,
+                                    amount DECIMAL(12, 2) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_bids_lot
+    FOREIGN KEY (lot_id) REFERENCES lots(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_bids_user
+    FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+
+CREATE TABLE IF NOT EXISTS subscriptions (
+                                             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+                                             lot_id BIGINT NOT NULL,
+                                             user_id BIGINT NOT NULL,
+                                             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+                                             CONSTRAINT fk_subscriptions_lot
+                                             FOREIGN KEY (lot_id) REFERENCES lots(id)
+    ON DELETE CASCADE,
+
+    CONSTRAINT fk_subscriptions_user
+    FOREIGN KEY (user_id) REFERENCES users(id),
+
+    CONSTRAINT uq_subscription UNIQUE (lot_id, user_id)
+    );
