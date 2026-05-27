@@ -138,3 +138,56 @@ textarea {
     color: #666;
     font-size: 14px;
 }
+
+.auction-box {
+    margin-top: 30px;
+    border: 2px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fffdf5;
+}
+
+.bid-card {
+    border: 1px solid #ddd;
+    background: #fafafa;
+    padding: 12px;
+    border-radius: 6px;
+    margin-top: 10px;
+}
+
+.bid-card p {
+    margin: 5px 0;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.admin-table th,
+.admin-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.admin-table th {
+    background: #f0f0f0;
+}
+
+.admin-table form {
+    margin: 0;
+}
+
+.admin-table button {
+    margin-top: 5px;
+}
+
+.success {
+    color: darkgreen;
+}
+
+.error {
+    color: darkred;
+}
