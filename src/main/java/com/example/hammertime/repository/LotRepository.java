@@ -8,11 +8,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -119,6 +121,40 @@ public class LotRepository {
     public List<String> findImagesByLotId(Long lotId) {
         String sql = "SELECT file_name FROM lot_images WHERE lot_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getString("file_name"), lotId);
+    }
+
+    public void updateCurrentPrice(Long lotId, BigDecimal currentPrice) {
+        String sql = "UPDATE lots SET current_price = ? WHERE id = ?";
+        jdbcTemplate.update(sql, currentPrice, lotId);
+    }
+
+    public void updateStatus(Long lotId, LotStatus status) {
+        String sql = "UPDATE lots SET status = ? WHERE id = ?";
+        jdbcTemplate.update(sql, status.name(), lotId);
+    }
+
+    public void deleteById(Long lotId) {
+        String sql = "DELETE FROM lots WHERE id = ?";
+        jdbcTemplate.update(sql, lotId);
+    }
+
+    public List<Lot> findLotsForFinish(LocalDateTime now) {
+        String sql = """
+            SELECT l.*,
+                   CONCAT(u.first_name, ' ', u.last_name) AS owner_name
+            FROM lots l
+            JOIN users u ON l.owner_id = u.id
+            WHERE l.end_time <= ?
+              AND l.status IN ('ACTIVE', 'PLANNED')
+            """;
+
+        List<Lot> lots = jdbcTemplate.query(sql, lotRowMapper(), java.sql.Timestamp.valueOf(now));
+
+        for (Lot lot : lots) {
+            lot.setImages(findImagesByLotId(lot.getId()));
+        }
+
+        return lots;
     }
 
     private RowMapper<Lot> lotRowMapper() {
