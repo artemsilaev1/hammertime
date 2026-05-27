@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -82,6 +84,26 @@ public class UserRepository {
         return jdbcTemplate.query(sql, userRowMapper(), code)
                 .stream()
                 .findFirst();
+    }
+
+    public Optional<User> findById(Long id) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+
+        return jdbcTemplate.query(sql, userRowMapper(), id)
+                .stream()
+                .findFirst();
+    }
+
+    public List<User> findAll() {
+        String sql = "SELECT * FROM users ORDER BY id";
+
+        return jdbcTemplate.query(sql, userRowMapper());
+    }
+
+    public void updateBalance(Long userId, BigDecimal balance) {
+        String sql = "UPDATE users SET balance = ? WHERE id = ?";
+
+        jdbcTemplate.update(sql, balance, userId);
     }
 
     public boolean existsByEmail(String email) {
