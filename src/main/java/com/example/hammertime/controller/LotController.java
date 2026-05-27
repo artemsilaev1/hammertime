@@ -2,10 +2,13 @@ package com.example.hammertime.controller;
 
 import com.example.hammertime.dto.CommentForm;
 import com.example.hammertime.dto.LotForm;
+import com.example.hammertime.model.Bid;
 import com.example.hammertime.model.Comment;
 import com.example.hammertime.model.Lot;
+import com.example.hammertime.service.BidService;
 import com.example.hammertime.service.CommentService;
 import com.example.hammertime.service.LotService;
+import com.example.hammertime.service.SubscriptionService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -20,14 +23,19 @@ import java.util.List;
 @Controller
 @RequestMapping("/lots")
 public class LotController {
-
     private final LotService lotService;
     private final CommentService commentService;
+    private final BidService bidService;
+    private final SubscriptionService subscriptionService;
 
     public LotController(LotService lotService,
-                         CommentService commentService) {
+                         CommentService commentService,
+                         BidService bidService,
+                         SubscriptionService subscriptionService) {
         this.lotService = lotService;
         this.commentService = commentService;
+        this.bidService = bidService;
+        this.subscriptionService = subscriptionService;
     }
 
     @GetMapping
@@ -35,7 +43,6 @@ public class LotController {
                        @RequestParam(required = false)
                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                        Model model) {
-
         List<Lot> lots = lotService.findAll(q, date);
 
         model.addAttribute("lots", lots);
@@ -56,7 +63,6 @@ public class LotController {
                          BindingResult bindingResult,
                          Model model,
                          Principal principal) {
-
         if (bindingResult.hasErrors()) {
             return "lots/create";
         }
@@ -72,12 +78,20 @@ public class LotController {
     }
 
     @GetMapping("/{id}")
-    public String details(@PathVariable Long id, Model model) {
+    public String details(@PathVariable Long id,
+                          Model model,
+                          Principal principal) {
         Lot lot = lotService.findById(id);
         List<Comment> comments = commentService.findByLotId(id);
+        List<Bid> bids = bidService.findByLotId(id);
+
+        String email = principal == null ? null : principal.getName();
+        boolean subscribed = subscriptionService.isSubscribed(id, email);
 
         model.addAttribute("lot", lot);
         model.addAttribute("comments", comments);
+        model.addAttribute("bids", bids);
+        model.addAttribute("subscribed", subscribed);
         model.addAttribute("commentForm", new CommentForm());
 
         return "lots/details";
@@ -89,29 +103,23 @@ public class LotController {
                              BindingResult bindingResult,
                              Model model,
                              Principal principal) {
-
         if (bindingResult.hasErrors()) {
             Lot lot = lotService.findById(id);
             List<Comment> comments = commentService.findByLotId(id);
+            List<Bid> bids = bidService.findByLotId(id);
+
+            String email = principal == null ? null : principal.getName();
+            boolean subscribed = subscriptionService.isSubscribed(id, email);
 
             model.addAttribute("lot", lot);
             model.addAttribute("comments", comments);
+            model.addAttribute("bids", bids);
+            model.addAttribute("subscribed", subscribed);
 
             return "lots/details";
         }
 
-        try {
-            commentService.addComment(id, commentForm, principal.getName());
-        } catch (IllegalArgumentException e) {
-            Lot lot = lotService.findById(id);
-            List<Comment> comments = commentService.findByLotId(id);
-
-            model.addAttribute("lot", lot);
-            model.addAttribute("comments", comments);
-            model.addAttribute("error", e.getMessage());
-
-            return "lots/details";
-        }
+        commentService.addComment(id, commentForm, principal.getName());
 
         return "redirect:/lots/" + id;
     }
