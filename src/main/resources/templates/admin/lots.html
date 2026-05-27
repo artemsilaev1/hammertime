@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админка: лоты</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<header>
+    <h1>Hammer-Time</h1>
+    <nav>
+        <a th:href="@{/}">Главная</a>
+        <a th:href="@{/lots}">Лоты</a>
+        <a th:href="@{/admin/users}">Пользователи</a>
+        <a th:href="@{/admin/lots}">Лоты админки</a>
+    </nav>
+</header>
+
+<main>
+    <h2>Управление лотами</h2>
+
+    <table class="admin-table">
+        <tr>
+            <th>ID</th>
+            <th>Название</th>
+            <th>Текущая цена</th>
+            <th>Статус</th>
+            <th>Продавец</th>
+            <th>Действия</th>
+        </tr>
+
+        <tr th:each="lot : ${lots}">
+            <td th:text="${lot.id}"></td>
+
+            <td>
+                <a th:href="@{/lots/{id}(id=${lot.id})}" th:text="${lot.title}"></a>
+            </td>
+
+            <td th:text="${lot.currentPrice}"></td>
+            <td th:text="${lot.status}"></td>
+            <td th:text="${lot.ownerName}"></td>
+
+            <td>
+                <form th:action="@{/admin/lots/{id}/cancel(id=${lot.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">Отменить</button>
+                </form>
+
+                <form th:action="@{/admin/lots/{id}/delete(id=${lot.id})}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit">Удалить</button>
+                </form>
+            </td>
+        </tr>
+    </table>
+</main>
+</body>
+</html>
