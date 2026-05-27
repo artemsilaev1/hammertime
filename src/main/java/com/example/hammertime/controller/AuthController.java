@@ -44,7 +44,7 @@ public class AuthController {
             return "auth/register";
         }
 
-        model.addAttribute("success", "Регистрация прошла успешно. Проверьте почту или консоль для активации аккаунта.");
+        model.addAttribute("success", "Регистрация прошла успешно. Проверьте почту для активации аккаунта.");
         return "auth/login";
     }
 
@@ -58,6 +58,58 @@ public class AuthController {
             model.addAttribute("error", "Неверная или устаревшая ссылка активации.");
         }
 
+        return "auth/login";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordPage() {
+        return "auth/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPassword(@RequestParam String email, Model model) {
+        userService.startPasswordReset(email);
+
+        model.addAttribute(
+                "success",
+                "Если пользователь с таким email существует, на почту отправлена ссылка восстановления пароля."
+        );
+
+        return "auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password/{code}")
+    public String resetPasswordPage(@PathVariable String code, Model model) {
+        if (!userService.isResetCodeValid(code)) {
+            model.addAttribute("error", "Неверная или устаревшая ссылка восстановления пароля.");
+            return "auth/login";
+        }
+
+        model.addAttribute("code", code);
+        return "auth/reset-password";
+    }
+
+    @PostMapping("/reset-password/{code}")
+    public String resetPassword(@PathVariable String code,
+                                @RequestParam String password,
+                                @RequestParam String repeatPassword,
+                                Model model) {
+
+        if (!password.equals(repeatPassword)) {
+            model.addAttribute("code", code);
+            model.addAttribute("error", "Пароли не совпадают");
+            return "auth/reset-password";
+        }
+
+        try {
+            userService.resetPassword(code, password);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("code", code);
+            model.addAttribute("error", e.getMessage());
+            return "auth/reset-password";
+        }
+
+        model.addAttribute("success", "Пароль успешно изменён. Теперь можно войти.");
         return "auth/login";
     }
 }

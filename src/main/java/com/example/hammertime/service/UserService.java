@@ -64,4 +64,37 @@ public class UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Пользователь не найден"));
     }
+
+    public void startPasswordReset(String email) {
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return;
+        }
+
+        String resetCode = UUID.randomUUID().toString();
+        user.setResetPasswordCode(resetCode);
+
+        userRepository.update(user);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), resetCode);
+    }
+
+    public boolean isResetCodeValid(String code) {
+        return userRepository.findByResetPasswordCode(code).isPresent();
+    }
+
+    public void resetPassword(String code, String newPassword) {
+        User user = userRepository.findByResetPasswordCode(code)
+                .orElseThrow(() -> new IllegalArgumentException("Неверная или устаревшая ссылка восстановления пароля"));
+
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Пароль должен быть минимум 6 символов");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetPasswordCode(null);
+
+        userRepository.update(user);
+    }
 }

@@ -70,6 +70,14 @@ public class UserRepository {
         );
     }
 
+    public Optional<User> findById(Long id) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+
+        return jdbcTemplate.query(sql, userRowMapper(), id)
+                .stream()
+                .findFirst();
+    }
+
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
 
@@ -86,30 +94,28 @@ public class UserRepository {
                 .findFirst();
     }
 
-    public Optional<User> findById(Long id) {
-        String sql = "SELECT * FROM users WHERE id = ?";
+    public Optional<User> findByResetPasswordCode(String code) {
+        String sql = "SELECT * FROM users WHERE reset_password_code = ?";
 
-        return jdbcTemplate.query(sql, userRowMapper(), id)
+        return jdbcTemplate.query(sql, userRowMapper(), code)
                 .stream()
                 .findFirst();
     }
 
     public List<User> findAll() {
         String sql = "SELECT * FROM users ORDER BY id";
-
         return jdbcTemplate.query(sql, userRowMapper());
-    }
-
-    public void updateBalance(Long userId, BigDecimal balance) {
-        String sql = "UPDATE users SET balance = ? WHERE id = ?";
-
-        jdbcTemplate.update(sql, balance, userId);
     }
 
     public boolean existsByEmail(String email) {
         String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, email);
         return count != null && count > 0;
+    }
+
+    public void updateBalance(Long userId, BigDecimal balance) {
+        String sql = "UPDATE users SET balance = ? WHERE id = ?";
+        jdbcTemplate.update(sql, balance, userId);
     }
 
     private RowMapper<User> userRowMapper() {

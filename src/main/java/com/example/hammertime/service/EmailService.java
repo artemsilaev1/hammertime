@@ -50,6 +50,34 @@ public class EmailService {
         }
     }
 
+    public void sendPasswordResetEmail(String to, String resetCode) {
+        String link = appUrl + "/reset-password/" + resetCode;
+
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setFrom(mailFrom);
+        message.setSubject("Восстановление пароля Hammer-Time");
+        message.setText("""
+                Здравствуйте!
+
+                Для восстановления пароля на сайте Hammer-Time перейдите по ссылке:
+                %s
+
+                Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.
+                """.formatted(link));
+
+        try {
+            mailSender.send(message);
+            System.out.println("Письмо восстановления пароля отправлено на почту: " + to);
+        } catch (Exception e) {
+            System.out.println("Письмо восстановления пароля не отправилось.");
+            System.out.println("Ссылка для восстановления пароля:");
+            System.out.println(link);
+            System.out.println("Ошибка отправки email:");
+            System.out.println(e.getMessage());
+        }
+    }
+
     public void sendSimpleEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);

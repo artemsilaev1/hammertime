@@ -20,6 +20,8 @@ public class SecurityConfig {
                                 "/login",
                                 "/register",
                                 "/activate/**",
+                                "/forgot-password",
+                                "/reset-password/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -27,16 +29,12 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/ws/**"
                         ).permitAll()
-
-                        .requestMatchers(HttpMethod.GET, "/lots", "/lots/*").permitAll()
-
                         .requestMatchers("/lots/create").authenticated()
                         .requestMatchers(HttpMethod.POST, "/lots/*/comments").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/lots/*/subscriptions/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/lots/*/bids").authenticated()
-
+                        .requestMatchers("/lots/*/subscriptions/**").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/lots", "/lots/*").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
