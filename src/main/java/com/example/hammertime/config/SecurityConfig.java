@@ -23,12 +23,20 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
-                                "/uploads/**"
+                                "/uploads/**",
+                                "/webjars/**",
+                                "/ws/**"
                         ).permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/lots", "/lots/*").permitAll()
+
                         .requestMatchers("/lots/create").authenticated()
                         .requestMatchers(HttpMethod.POST, "/lots/*/comments").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/lots", "/lots/*").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/lots/*/subscriptions/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/lots/*/bids").authenticated()
+
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
