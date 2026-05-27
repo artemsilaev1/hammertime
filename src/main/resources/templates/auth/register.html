@@ -2,45 +2,60 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация</title>
+    <title>Регистрация — Hammer-Time</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <header>
     <h1>Hammer-Time</h1>
+    <p>Создание нового аккаунта</p>
+
     <nav>
         <a th:href="@{/}">Главная</a>
+        <a th:href="@{/lots}">Лоты</a>
         <a th:href="@{/login}">Вход</a>
     </nav>
 </header>
 
 <main>
-    <h2>Регистрация</h2>
+    <section class="card auth-card">
+        <h2>Регистрация</h2>
 
-    <p class="error" th:if="${error}" th:text="${error}"></p>
+        <p>
+            После регистрации аккаунт нужно активировать по ссылке,
+            которая появится в консоли IntelliJ.
+        </p>
 
-    <form th:action="@{/register}" th:object="${form}" method="post">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <p class="error" th:if="${error}" th:text="${error}"></p>
 
-        <label>Имя:</label>
-        <input type="text" th:field="*{firstName}">
-        <p class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></p>
+        <form th:action="@{/register}" th:object="${form}" method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
-        <label>Фамилия:</label>
-        <input type="text" th:field="*{lastName}">
-        <p class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
+            <label>Имя:</label>
+            <input type="text" th:field="*{firstName}" placeholder="Введите имя">
+            <p class="error" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></p>
 
-        <label>Email:</label>
-        <input type="email" th:field="*{email}">
-        <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            <label>Фамилия:</label>
+            <input type="text" th:field="*{lastName}" placeholder="Введите фамилию">
+            <p class="error" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
 
-        <label>Пароль:</label>
-        <input type="password" th:field="*{password}">
-        <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+            <label>Email:</label>
+            <input type="email" th:field="*{email}" placeholder="Введите email">
+            <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
 
-        <button type="submit">Зарегистрироваться</button>
-    </form>
+            <label>Пароль:</label>
+            <input type="password" th:field="*{password}" placeholder="Минимум 6 символов">
+            <p class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+            <button type="submit">Зарегистрироваться</button>
+        </form>
+
+        <p class="hint">
+            Уже есть аккаунт?
+            <a th:href="@{/login}">Войти</a>
+        </p>
+    </section>
 </main>
 
 </body>

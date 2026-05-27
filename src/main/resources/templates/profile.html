@@ -2,15 +2,19 @@
 <html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Профиль</title>
+    <title>Профиль — Hammer-Time</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
 <header>
     <h1>Hammer-Time</h1>
+    <p>Личный кабинет пользователя</p>
+
     <nav>
         <a th:href="@{/}">Главная</a>
+        <a th:href="@{/lots}">Лоты</a>
+        <a th:href="@{/lots/create}">Создать лот</a>
 
         <form th:action="@{/logout}" method="post" class="logout-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -20,15 +24,49 @@
 </header>
 
 <main>
-    <h2>Профиль пользователя</h2>
+    <section class="card profile-card">
+        <h2>Профиль пользователя</h2>
 
-    <div class="card">
-        <p><b>Имя:</b> <span th:text="${user.firstName}"></span></p>
-        <p><b>Фамилия:</b> <span th:text="${user.lastName}"></span></p>
-        <p><b>Email:</b> <span th:text="${user.email}"></span></p>
-        <p><b>Роль:</b> <span th:text="${user.role}"></span></p>
-        <p><b>Баланс кредитов:</b> <span th:text="${user.balance}"></span></p>
-    </div>
+        <div class="profile-grid">
+            <div>
+                <p class="profile-label">Имя</p>
+                <p class="profile-value" th:text="${user.firstName}"></p>
+            </div>
+
+            <div>
+                <p class="profile-label">Фамилия</p>
+                <p class="profile-value" th:text="${user.lastName}"></p>
+            </div>
+
+            <div>
+                <p class="profile-label">Email</p>
+                <p class="profile-value" th:text="${user.email}"></p>
+            </div>
+
+            <div>
+                <p class="profile-label">Роль</p>
+                <p class="profile-value" th:text="${user.role}"></p>
+            </div>
+
+            <div>
+                <p class="profile-label">Баланс кредитов</p>
+                <p class="profile-value balance" th:text="${user.balance}"></p>
+            </div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h3>Что можно делать на сайте</h3>
+
+        <p>
+            Пользователь может создавать лоты, оставлять комментарии,
+            участвовать в торгах и следить за изменениями цены.
+        </p>
+
+        <p>
+            <a th:href="@{/lots}">Посмотреть лоты</a>
+        </p>
+    </section>
 </main>
 
 </body>
