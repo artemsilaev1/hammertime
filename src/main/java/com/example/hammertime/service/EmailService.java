@@ -33,4 +33,19 @@ public class EmailService {
             System.out.println(link);
         }
     }
+
+    public void sendSimpleEmail(String to, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+
+        try {
+            mailSender.send(message);
+        } catch (Exception e) {
+            System.out.println("Письмо не отправлено. Получатель: " + to);
+            System.out.println("Тема: " + subject);
+            System.out.println(text);
+        }
+    }
 }
