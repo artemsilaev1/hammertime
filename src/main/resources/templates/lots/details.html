@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title th:text="${lot.title}">Лот</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-
 <header>
     <h1>Hammer-Time</h1>
-
     <nav>
         <a th:href="@{/}">Главная</a>
         <a th:href="@{/lots}">Лоты</a>
         <a th:href="@{/lots/create}">Создать лот</a>
         <a th:href="@{/profile}">Профиль</a>
-        <a th:href="@{/login}">Вход</a>
+        <a th:href="@{/admin/users}">Админка</a>
     </nav>
 </header>
 
@@ -29,46 +31,63 @@
     </div>
 
     <div class="card">
-        <p>
-            <b>Описание:</b>
-            <span th:text="${lot.description}"></span>
-        </p>
-
-        <p>
-            <b>Начальная цена:</b>
-            <span th:text="${lot.startPrice}"></span>
-        </p>
-
-        <p>
-            <b>Текущая цена:</b>
-            <span th:text="${lot.currentPrice}"></span>
-        </p>
-
-        <p>
-            <b>Минимальная ставка:</b>
-            <span th:text="${lot.minBid}"></span>
-        </p>
-
-        <p>
-            <b>Статус:</b>
-            <span th:text="${lot.status}"></span>
-        </p>
-
-        <p>
-            <b>Продавец:</b>
-            <span th:text="${lot.ownerName}"></span>
-        </p>
-
-        <p>
-            <b>Начало торгов:</b>
-            <span th:text="${#temporals.format(lot.startTime, 'dd.MM.yyyy HH:mm')}"></span>
-        </p>
-
-        <p>
-            <b>Окончание торгов:</b>
-            <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span>
-        </p>
+        <p><b>Описание:</b> <span th:text="${lot.description}"></span></p>
+        <p><b>Начальная цена:</b> <span th:text="${lot.startPrice}"></span></p>
+        <p><b>Текущая цена:</b> <span id="currentPrice" th:text="${lot.currentPrice}"></span></p>
+        <p><b>Минимальная ставка:</b> <span th:text="${lot.minBid}"></span></p>
+        <p><b>Статус:</b> <span th:text="${lot.status}"></span></p>
+        <p><b>Продавец:</b> <span th:text="${lot.ownerName}"></span></p>
+        <p><b>Начало торгов:</b> <span th:text="${#temporals.format(lot.startTime, 'dd.MM.yyyy HH:mm')}"></span></p>
+        <p><b>Окончание торгов:</b> <span th:text="${#temporals.format(lot.endTime, 'dd.MM.yyyy HH:mm')}"></span></p>
     </div>
+
+    <section class="auction-box">
+        <h3>Аукцион</h3>
+
+        <p>
+            Текущая цена:
+            <b><span id="auctionCurrentPrice" th:text="${lot.currentPrice}"></span></b>
+            кредитов
+        </p>
+
+        <form id="bidForm">
+            <label>Ваша ставка:</label>
+            <input type="number" id="bidAmount" step="0.01" min="0.01" required>
+            <button type="submit">Сделать ставку</button>
+        </form>
+
+        <p id="bidMessage"></p>
+
+        <form th:if="${!subscribed}"
+              th:action="@{/lots/{id}/subscriptions/subscribe(id=${lot.id})}"
+              method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Подписаться на изменения лота</button>
+        </form>
+
+        <form th:if="${subscribed}"
+              th:action="@{/lots/{id}/subscriptions/unsubscribe(id=${lot.id})}"
+              method="post">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit">Отписаться от изменений лота</button>
+        </form>
+
+        <h4>История ставок</h4>
+
+        <div id="bidHistory">
+            <p th:if="${#lists.isEmpty(bids)}">Ставок пока нет.</p>
+
+            <div class="bid-card" th:each="bid : ${bids}">
+                <p>
+                    <b th:text="${bid.userName}"></b>
+                    сделал ставку
+                    <b th:text="${bid.amount}"></b>
+                    кредитов
+                </p>
+                <p th:text="${#temporals.format(bid.createdAt, 'dd.MM.yyyy HH:mm:ss')}"></p>
+            </div>
+        </div>
+    </section>
 
     <section class="comments">
         <h3>Комментарии</h3>
@@ -78,19 +97,17 @@
         <form th:action="@{/lots/{id}/comments(id=${lot.id})}"
               th:object="${commentForm}"
               method="post">
-
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
 
             <label>Ваш комментарий:</label>
             <textarea th:field="*{text}" rows="4" placeholder="Напишите комментарий к лоту"></textarea>
+
             <p class="error" th:if="${#fields.hasErrors('text')}" th:errors="*{text}"></p>
 
             <button type="submit">Добавить комментарий</button>
         </form>
 
-        <p class="hint">
-            Чтобы оставить комментарий, нужно войти в аккаунт.
-        </p>
+        <p class="hint">Чтобы оставить комментарий или сделать ставку, нужно войти в аккаунт.</p>
 
         <div th:if="${#lists.isEmpty(comments)}">
             <p>Комментариев пока нет.</p>
@@ -101,7 +118,6 @@
                 <b th:text="${comment.userName}"></b>
                 <span th:text="${#temporals.format(comment.createdAt, 'dd.MM.yyyy HH:mm')}"></span>
             </p>
-
             <p th:text="${comment.text}"></p>
         </div>
     </section>
@@ -111,5 +127,13 @@
     </p>
 </main>
 
+<script th:src="@{/webjars/sockjs-client/1.5.1/sockjs.min.js}"></script>
+<script th:src="@{/webjars/stomp-websocket/2.3.4/stomp.min.js}"></script>
+
+<script th:inline="javascript">
+    window.lotId = /*[[${lot.id}]]*/ 0;
+</script>
+
+<script th:src="@{/js/auction.js}"></script>
 </body>
 </html>
